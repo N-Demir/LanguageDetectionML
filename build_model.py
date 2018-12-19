@@ -8,7 +8,7 @@ from sklearn.svm import SVC
 import numpy as np
 
 kf = KFold(n_splits=5, shuffle=True)
-vectorizer = CountVectorizer()
+vectorizer = CountVectorizer(max_features=10000)
 
 def readInData(file_path, key):
 	# Let's dejsonify

@@ -26,8 +26,6 @@ def readInData(file_path, key):
 
 			strings.append(s)
 
-			# if idx_line > 50_000: # TODO: Remove
-			# 	break
 	return strings
 
 def getCharacterFeatures(X):
@@ -103,7 +101,7 @@ clf = MultinomialNB()
 # With 10_000 - 0.5740603824620157
 
 # SVM
-clf = SVC(kernel='linear')
+# clf = SVC(kernel='linear')
 
 print(trainModel(X, Y, clf))
 

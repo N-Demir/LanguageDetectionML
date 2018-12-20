@@ -10,6 +10,8 @@ from sklearn.preprocessing import normalize
 from sklearn.svm import SVC
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.linear_model import SGDClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import GridSearchCV
 
 import numpy as np
 
@@ -57,13 +59,21 @@ def trainKFoldModel(X, Y, model):
 	return np.mean(accuracies)
 
 def getFinalModel(X, Y, model):
-	vectorizer.fit(train_X)
-	train_X = vectorizer.transform(train_X).todense()
-	valid_X = vectorizer.transform(valid_X).todense()
-	train_X = normalize(train_X)
-	valid_X = normalize(valid_X)
 
-	# TODO: Some stuff
+	text_pipeline = Pipeline([('vectorizer', CountVectorizer()),
+							  ('tfidf_transformator', TfidfTransformer()),
+							  ('clf', model),
+							 ])
+
+	pipeline_parameters = {
+		'vectorizer__ngram_range': [(1, 1), (1, 2)],
+		'tfidf_transformator__use_idf': (True, False),
+		'clf__alpha': (1e-2, 1e-3),
+	}
+
+	grid_search_clf = GridSearchCV(text_pipeline, pipeline_parameters, n_jobs=-1)
+	return grid_search_clf.fit(X, Y)
+
 
 def main():
 
@@ -77,16 +87,21 @@ def main():
 	# LR Accuracies:
 	# word = 0.6549672391650392
 	# word (X.shape[0] = 10_000) = 0.5740603824620157
-	# SVM TODO: Change?
+	# Linear SVM Accuracies:
+	# word = 0.7006643124482357
+	# word + tfidf = 0.7237122221016614
 
-	# clf = MultinomialNB()
+	clf = MultinomialNB()
 	# clf = LogisticRegression(solver='lbfgs', multi_class='multinomial')
 	# clf = SVC(kernel='linear')
-	clf = SGDClassifier(random_state=314159)
+	# clf = SGDClassifier(random_state=314159)
 
-	kfold_accuracy = trainKFoldModel(X, Y, clf)
+	# KFold training
+	# kfold_accuracy = trainKFoldModel(X, Y, clf)
+	# print('Overall KFold accuracy was {}'.format(kfold_accuracy))
 
-	print('Overall KFold accuracy was {}'.format(kfold_accuracy))
+	gs = getFinalModel(X, Y, clf)
+	print('GridSearch found best score as: {} with params {}'.format(gs.best_score_, gs.best_params_))
 
 	# Train on full dataset and save to disk
 	# filename = 'finalized_model.sav'

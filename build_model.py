@@ -9,6 +9,7 @@ from sklearn.model_selection import KFold
 from sklearn.preprocessing import normalize
 from sklearn.svm import SVC
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.linear_model import SGDClassifier
 
 import numpy as np
 
@@ -37,10 +38,10 @@ def trainKFoldModel(X, Y, model):
 		train_X = vectorizer.transform(train_X)
 		valid_X = vectorizer.transform(valid_X)
 
-		tfidf_transformator = TfidfTransformer()
-		tfidf_transformator.fit(train_X)
-		train_X = tfidf_transformator.transform(train_X)
-		valid_X = tfidf_transformator.transform(valid_X)
+		# tfidf_transformator = TfidfTransformer()
+		# tfidf_transformator.fit(train_X)
+		# train_X = tfidf_transformator.transform(train_X)
+		# valid_X = tfidf_transformator.transform(valid_X)
 
 		print('Fitting the data')
 		model.fit(train_X, train_Y)
@@ -70,13 +71,18 @@ def main():
 	Y = np.array(readInData('train_y_languages_homework.json.txt', 'classification'))
 
 	# Use comments to choose a particular model to train
-	# NB original accuracy = 0.7291591832430144
-	# LR original accuracy = 0.6549672391650392 (10_000 0.5740603824620157)
+	# NB Accuracies:
+	# word = 0.7291591832430144
+	# word + tfidf = 0.6218707534800128
+	# LR Accuracies:
+	# word = 0.6549672391650392
+	# word (X.shape[0] = 10_000) = 0.5740603824620157
 	# SVM TODO: Change?
 
-	clf = MultinomialNB()
+	# clf = MultinomialNB()
 	# clf = LogisticRegression(solver='lbfgs', multi_class='multinomial')
 	# clf = SVC(kernel='linear')
+	clf = SGDClassifier(random_state=314159)
 
 	kfold_accuracy = trainKFoldModel(X, Y, clf)
 

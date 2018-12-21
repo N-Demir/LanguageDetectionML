@@ -35,7 +35,7 @@ def trainKFoldModel(X, Y, model):
 		valid_X, valid_Y = X[test_index], Y[test_index]
 
 		# Word features
-		vectorizer = CountVectorizer(analyzer='char_wb', ngram_range=(1,2))
+		vectorizer = CountVectorizer()
 		vectorizer.fit(train_X)
 		train_X = vectorizer.transform(train_X)
 		valid_X = vectorizer.transform(valid_X)
@@ -60,15 +60,15 @@ def trainKFoldModel(X, Y, model):
 
 def getFinalModel(X, Y, model):
 
-	text_pipeline = Pipeline([('vectorizer', CountVectorizer()),
+	text_pipeline = Pipeline([('vectorizer', CountVectorizer(analyzer='char_wb')),
 							  ('tfidf_transformator', TfidfTransformer()),
 							  ('clf', model),
 							 ])
 
 	pipeline_parameters = {
-		'vectorizer__ngram_range': [(1, 1), (1, 2)],
-		'tfidf_transformator__use_idf': (True, False),
-		'clf__alpha': (1e-2, 1e-3),
+		'vectorizer__ngram_range': [(1, 4), (1, 6), (2, 4)],
+		'tfidf_transformator__use_idf': [False],
+		'clf__alpha': [1e-3],
 	}
 
 	grid_search_clf = GridSearchCV(text_pipeline, pipeline_parameters, verbose=5)
@@ -85,6 +85,7 @@ def main():
 	# word = 0.7291591832430144
 	# word + tfidf = 0.6218707534800128
 	# GridSearch found best score as: 0.7695049883962963 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': False, 'vectorizer__ngram_range': (1, 2)}
+	# character (4-grams) = 0.7537701959185161
 	# LR Accuracies:
 	# word = 0.6549672391650392
 	# word (X.shape[0] = 10_000) = 0.5740603824620157
@@ -92,6 +93,7 @@ def main():
 	# word = 0.7006643124482357
 	# word + tfidf = 0.7237122221016614
 	# GridSearch found best score as: 0.7149396687162556 with params {'clf__alpha': 0.01, 'tfidf_transformator__use_idf': True, 'vectorizer__ngram_range': (1, 2)}
+	# character (4-grams) = 0.7437297991604366
 
 	clf = MultinomialNB()
 	# clf = LogisticRegression(solver='lbfgs', multi_class='multinomial')
@@ -99,12 +101,12 @@ def main():
 	# clf = SGDClassifier(random_state=314159)
 
 	# KFold training
-	kfold_accuracy = trainKFoldModel(X, Y, clf)
-	print('Overall KFold accuracy was {}'.format(kfold_accuracy))
+	# kfold_accuracy = trainKFoldModel(X, Y, clf)
+	# print('Overall KFold accuracy was {}'.format(kfold_accuracy))
 
 	# Getting best model parameters
-	# gs = getFinalModel(X, Y, clf)
-	# print('GridSearch found best score as: {} with params {}'.format(gs.best_score_, gs.best_params_))
+	gs = getFinalModel(X, Y, clf)
+	print('GridSearch found best score as: {} with params {}'.format(gs.best_score_, gs.best_params_))
 
 	# Train on full dataset and save to disk
 	# filename = 'finalized_model.sav'

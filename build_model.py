@@ -1,7 +1,5 @@
 import string
 import json
-import pickle
-from collections import Counter
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.linear_model import LogisticRegression
@@ -14,6 +12,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 
 import numpy as np
+from joblib import dump
 
 def readInData(file_path, key):
 	# Let's dejsonify
@@ -58,7 +57,7 @@ def trainKFoldModel(X, Y, model):
 
 	return np.mean(accuracies)
 
-def getFinalModel(X, Y, model):
+def getFinalModelParameters(X, Y, model):
 
 	text_pipeline = Pipeline([('vectorizer', CountVectorizer()),
 							  ('tfidf_transformator', TfidfTransformer()),
@@ -66,57 +65,43 @@ def getFinalModel(X, Y, model):
 							 ])
 
 	pipeline_parameters = {
-		'vectorizer__analyzer': ['char_wb', 'char'],
-		'vectorizer__ngram_range': [(1, 6), (1, 9), (1, 20)],
-		'tfidf_transformator__use_idf': [True],
-		'clf__alpha': [1e-3],
+		'vectorizer__analyzer': ['char_wb', 'word'],
+		'vectorizer__ngram_range': [(1, 1), (1, 3), (1, 6)],
+		'tfidf_transformator__use_idf': [False, True],
+		'clf__alpha': [1e-3, 1e-2],
 	}
 
 	grid_search_clf = GridSearchCV(text_pipeline, pipeline_parameters, verbose=5)
 	return grid_search_clf.fit(X, Y)
 
+def writeModel(model):
+	file_path = "finalized_model.joblib"
+	dump(model, file_path) 
 
 def main():
 
 	X = np.array(readInData('train_X_languages_homework.json.txt', 'text'))
 	Y = np.array(readInData('train_y_languages_homework.json.txt', 'classification'))
 
-	# Use comments to choose a particular model to train
-	# NB Accuracies:
-	# word = 0.7291591832430144
-	# word + tfidf = 0.6218707534800128
-	# GridSearch found best score as: 0.7695049883962963 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': False, 'vectorizer__ngram_range': (1, 2)}
-	# character (4-grams) = 0.7537701959185161
-	# character (6-grams) = 0.8363997416082494
-	# character (2-8-grams) = 0.8408657718656044
-	# GridSearch found best score as: 0.8417669529711064 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': True, 'vectorizer__ngram_range': (1, 6)}
-	# LR Accuracies:
-	# word = 0.6549672391650392
-	# word (X.shape[0] = 10_000) = 0.5740603824620157
-	# Linear SVM Accuracies:
-	# word = 0.7006643124482357
-	# word + tfidf = 0.7237122221016614
-	# GridSearch found best score as: 0.7149396687162556 with params {'clf__alpha': 0.01, 'tfidf_transformator__use_idf': True, 'vectorizer__ngram_range': (1, 2)}
-	# character (4-grams) = 0.7437297991604366
-	# GridSearch found best score as: 0.7784689491271304 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': True, 'vectorizer__ngram_range': (1, 7)}
-
+	## Use comments to choose a particular model to train
 	clf = MultinomialNB()
 	# clf = LogisticRegression(solver='lbfgs', multi_class='multinomial')
-	# clf = SVC(kernel='linear')
 	# clf = SGDClassifier(random_state=314159)
 
-	# KFold training
+	## KFold training
 	# kfold_accuracy = trainKFoldModel(X, Y, clf)
 	# print('Overall KFold accuracy was {}'.format(kfold_accuracy))
 
-	# Getting best model parameters
-	gs = getFinalModel(X, Y, clf)
-	print('GridSearch found best score as: {} with params {}'.format(gs.best_score_, gs.best_params_))
+	## Getting best model parameters
+	gs_clf = getFinalModelParameters(X, Y, clf)
+	print('GridSearch found best score as: {} with params {}'.format(gs_clf.best_score_, gs_clf.best_params_))
 
-	# Train on full dataset and save to disk
-	# filename = 'finalized_model.sav'
-	# final_model = getFinalModel(X, Y, clf)
-	# pickle.dump(model, open(filename, 'wb'))
+	## Save performance expectation
+	open('performance.txt', 'w+').write('GridSearch found best score as: {} with params {}'.format(gs_clf.best_score_, gs_clf.best_params_))
+
+	## Save model
+	final_model = gs_clf.fit(X, Y)
+	writeModel(final_model)
 
 
 if __name__ == "__main__":

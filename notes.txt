@@ -1,0 +1,30 @@
+Thanks for sending me this homework! It was pretty fun and I got a kick from the challenge of it. I chose to just stick with NaiveBayes and a linear SVM since I wasn't sure how realiable it would be to get word embeddings for some of the different languages and so instead of spending time implementing more models or even deep models I mainly spent it optimizing the parameters of NB and SVM.
+I tried both word and character feature vectors of varying n-gram lengths. While originally I assumed the single character features would be most descriptive (a different alphabet should distinguish a language, right), I realized from the data file that multiple languages used mostly the same alphabet. In the end I found that a combination of n-grams in the range of (1, 6) worked the best (though including higher n-grams marginally improved accuracy it came at an understandable speed cost).
+I was somewhat surprised that NaiveBayes worked better than a linear SVM, and will spend sometime understanding why that is. I also briefly implemented Logistic Regression but saw that for the most part it underperformed. 
+
+I spent about 5 hours on this, though most of the time was spent training. I ran the code on Google Cloud computers but there should not be much difference in training time. It was mainly to stop overheating my laptop. In the future, it would be awesome to incorporate word embeddings and try some deep models.
+
+DEPENDENCIES: Sklearn for all machine learning stuff and joblib for saving the model binary. Python 3.6 
+
+--Nikita
+
+Here are some results I kept along the way:
+NB Accuracies:
+# word = 0.7291591832430144
+# word + tfidf = 0.6218707534800128
+# GridSearch found best score as: 0.7695049883962963 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': False, 'vectorizer__ngram_range': (1, 2)}
+# character (4-grams) = 0.7537701959185161
+# character (6-grams) = 0.8363997416082494
+# character (2-8-grams) = 0.8408657718656044
+# GridSearch found best score as: 0.8417669529711064 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': True, 'vectorizer__ngram_range': (1, 6)}
+
+LR Accuracies:
+# word = 0.6549672391650392
+# word (X.shape[0] = 10_000) = 0.5740603824620157
+
+Linear SVM Accuracies:
+# word = 0.7006643124482357
+# word + tfidf = 0.7237122221016614
+# GridSearch found best score as: 0.7149396687162556 with params {'clf__alpha': 0.01, 'tfidf_transformator__use_idf': True, 'vectorizer__ngram_range': (1, 2)}
+# character (4-grams) = 0.7437297991604366
+# GridSearch found best score as: 0.7784689491271304 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': True, 'vectorizer__ngram_range': (1, 7)}

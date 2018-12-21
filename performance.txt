@@ -1,0 +1,1 @@
+GridSearch found best score as: 0.8417669529711064 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': True, 'vectorizer__analyzer': 'char_wb', 'vectorizer__ngram_range': (1, 6)}

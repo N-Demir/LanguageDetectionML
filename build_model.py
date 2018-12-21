@@ -60,14 +60,15 @@ def trainKFoldModel(X, Y, model):
 
 def getFinalModel(X, Y, model):
 
-	text_pipeline = Pipeline([('vectorizer', CountVectorizer(analyzer='char_wb')),
+	text_pipeline = Pipeline([('vectorizer', CountVectorizer()),
 							  ('tfidf_transformator', TfidfTransformer()),
 							  ('clf', model),
 							 ])
 
 	pipeline_parameters = {
-		'vectorizer__ngram_range': [(1, 4), (1, 6), (2, 4)],
-		'tfidf_transformator__use_idf': [False],
+		'vectorizer__analyzer': ['char_wb', 'char']
+		'vectorizer__ngram_range': [(1, 6), (1, 9), (1, 20)],
+		'tfidf_transformator__use_idf': [True],
 		'clf__alpha': [1e-3],
 	}
 
@@ -86,6 +87,9 @@ def main():
 	# word + tfidf = 0.6218707534800128
 	# GridSearch found best score as: 0.7695049883962963 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': False, 'vectorizer__ngram_range': (1, 2)}
 	# character (4-grams) = 0.7537701959185161
+	# character (6-grams) = 0.8363997416082494
+	# character (2-8-grams) = 0.8408657718656044
+	# GridSearch found best score as: 0.8417669529711064 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': True, 'vectorizer__ngram_range': (1, 6)}
 	# LR Accuracies:
 	# word = 0.6549672391650392
 	# word (X.shape[0] = 10_000) = 0.5740603824620157
@@ -94,6 +98,7 @@ def main():
 	# word + tfidf = 0.7237122221016614
 	# GridSearch found best score as: 0.7149396687162556 with params {'clf__alpha': 0.01, 'tfidf_transformator__use_idf': True, 'vectorizer__ngram_range': (1, 2)}
 	# character (4-grams) = 0.7437297991604366
+	# GridSearch found best score as: 0.7784689491271304 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': True, 'vectorizer__ngram_range': (1, 7)}
 
 	clf = MultinomialNB()
 	# clf = LogisticRegression(solver='lbfgs', multi_class='multinomial')

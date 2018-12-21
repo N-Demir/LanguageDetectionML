@@ -84,12 +84,14 @@ def main():
 	# NB Accuracies:
 	# word = 0.7291591832430144
 	# word + tfidf = 0.6218707534800128
+	# GridSearch found best score as: 0.7695049883962963 with params {'clf__alpha': 0.001, 'tfidf_transformator__use_idf': False, 'vectorizer__ngram_range': (1, 2)}
 	# LR Accuracies:
 	# word = 0.6549672391650392
 	# word (X.shape[0] = 10_000) = 0.5740603824620157
 	# Linear SVM Accuracies:
 	# word = 0.7006643124482357
 	# word + tfidf = 0.7237122221016614
+	# GridSearch found best score as: 0.7149396687162556 with params {'clf__alpha': 0.01, 'tfidf_transformator__use_idf': True, 'vectorizer__ngram_range': (1, 2)}
 
 	clf = MultinomialNB()
 	# clf = LogisticRegression(solver='lbfgs', multi_class='multinomial')

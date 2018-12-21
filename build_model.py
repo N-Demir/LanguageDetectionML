@@ -35,7 +35,7 @@ def trainKFoldModel(X, Y, model):
 		valid_X, valid_Y = X[test_index], Y[test_index]
 
 		# Word features
-		vectorizer = CountVectorizer()
+		vectorizer = CountVectorizer(analyzer='char_wb', ngram_range=(1,2))
 		vectorizer.fit(train_X)
 		train_X = vectorizer.transform(train_X)
 		valid_X = vectorizer.transform(valid_X)
@@ -71,7 +71,7 @@ def getFinalModel(X, Y, model):
 		'clf__alpha': (1e-2, 1e-3),
 	}
 
-	grid_search_clf = GridSearchCV(text_pipeline, pipeline_parameters, n_jobs=-1)
+	grid_search_clf = GridSearchCV(text_pipeline, pipeline_parameters, verbose=5)
 	return grid_search_clf.fit(X, Y)
 
 
@@ -99,11 +99,12 @@ def main():
 	# clf = SGDClassifier(random_state=314159)
 
 	# KFold training
-	# kfold_accuracy = trainKFoldModel(X, Y, clf)
-	# print('Overall KFold accuracy was {}'.format(kfold_accuracy))
+	kfold_accuracy = trainKFoldModel(X, Y, clf)
+	print('Overall KFold accuracy was {}'.format(kfold_accuracy))
 
-	gs = getFinalModel(X, Y, clf)
-	print('GridSearch found best score as: {} with params {}'.format(gs.best_score_, gs.best_params_))
+	# Getting best model parameters
+	# gs = getFinalModel(X, Y, clf)
+	# print('GridSearch found best score as: {} with params {}'.format(gs.best_score_, gs.best_params_))
 
 	# Train on full dataset and save to disk
 	# filename = 'finalized_model.sav'

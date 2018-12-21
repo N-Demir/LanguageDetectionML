@@ -66,7 +66,7 @@ def getFinalModel(X, Y, model):
 							 ])
 
 	pipeline_parameters = {
-		'vectorizer__analyzer': ['char_wb', 'char']
+		'vectorizer__analyzer': ['char_wb', 'char'],
 		'vectorizer__ngram_range': [(1, 6), (1, 9), (1, 20)],
 		'tfidf_transformator__use_idf': [True],
 		'clf__alpha': [1e-3],
